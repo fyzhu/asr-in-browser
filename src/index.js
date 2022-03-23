@@ -57,9 +57,9 @@ class IatRecorder {
           console.log('请求麦克风失败')
         }
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-          navigator.mediaDevices.getUserMedia({
+          navigator.mediaDevices.getDisplayMedia({
             audio: true,
-            video: false
+            video: true
           }).then((stream) => {
             getMediaSuccess(stream)
           }).catch((e) => {
@@ -94,10 +94,10 @@ class IatRecorder {
   
   sendData (buffer) {
     // console.log('buffer', buffer);
-    // recorderWorker.postMessage({
-    //   command: 'transform',
-    //   buffer: buffer
-    // })
+    recorderWorker.postMessage({
+      command: 'transform',
+      buffer: buffer
+    })
   }
   // 生成握手参数
   getHandShakeParams() {
@@ -301,22 +301,26 @@ class IatTaste {
     var currentText = $('#result_output').html()
     rtasrResult[data.seg_id] = data
     rtasrResult.forEach(i => {
-      let str = "实时转写"
-      str += (i.cn.st.type == 0) ? "【最终】识别结果：" : "【中间】识别结果："
-      i.cn.st.rt.forEach(j => {
-        j.ws.forEach(k => {
-          k.cw.forEach(l => {
-            str += l.w
+      // str += (i.cn.st.type == 0) ? "【最终】识别结果：" : "【中间】识别结果："
+      if(i.cn.st.type == 0){
+        let str = "实时转写"
+
+        str +=  "【最终】识别结果：" 
+        i.cn.st.rt.forEach(j => {
+          j.ws.forEach(k => {
+            k.cw.forEach(l => {
+              str += l.w
+            })
           })
         })
-      })
-      if (currentText.length == 0) {
-        $('#result_output').html(str)
-      } else {
-        $('#result_output').html(currentText + "<br>" +str)
+        if (currentText.length == 0) {
+          $('#result_output').html(str)
+        } else {
+          $('#result_output').html(currentText + "<br>" +str)
+        }
+        var ele = document.getElementById('result_output');
+        ele.scrollTop = ele.scrollHeight;
       }
-      var ele = document.getElementById('result_output');
-      ele.scrollTop = ele.scrollHeight;
     })
   }
 
